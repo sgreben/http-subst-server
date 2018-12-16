@@ -96,6 +96,22 @@ func init() {
 			log.Fatalf("%q: %v", arg, err)
 		}
 	}
+
+	if len(routesFlag.Values) == 0 {
+		log.Println("no routes defined, creating temporary directory to serve from")
+		tempDir, err := ioutil.TempDir("", "")
+		if err != nil {
+			log.Fatalf("create temporary directory: %v", err)
+		}
+		tempDirIndexPath := filepath.Join(tempDir, indexBaseName)
+		if err := ioutil.WriteFile(tempDirIndexPath, nil, 0400); err != nil {
+			log.Fatalf("write empty index file %q: %v", tempDirIndexPath, err)
+		}
+		routesFlag.Set(fmt.Sprintf("/=%s", tempDir))
+		log.Printf("created temporary directory %q. printing its path to stdout.", filepath.Base(tempDir))
+		fmt.Println(tempDir)
+	}
+
 }
 
 func main() {
@@ -157,9 +173,6 @@ func render(template string) (string, error) {
 }
 
 func server(addr string, routes routes) error {
-	if len(routes.Values) == 0 {
-		return fmt.Errorf("no routes defined")
-	}
 	mux := http.DefaultServeMux
 	handlers := make(map[string]http.Handler)
 	paths := make(map[string]string)
