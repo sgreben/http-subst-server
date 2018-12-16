@@ -88,6 +88,8 @@ hello world
 
 ### Variables from files
 
+You may specify files containing variable definitions `NAME=VALUE` (one per line) using `-variable-file`/`-f`.
+Changes to the definitions in these files will be picked up without having to restart the server.
 
 ```sh
 $ cat example/index.html
