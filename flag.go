@@ -24,3 +24,17 @@ func (so *enumVar) Set(v string) error {
 func (so *enumVar) String() string {
 	return so.Value
 }
+
+type stringsVar struct {
+	Values []string
+}
+
+// Set implements the flag.Value interface.
+func (so *stringsVar) Set(v string) error {
+	so.Values = append(so.Values, v)
+	return nil
+}
+
+func (so *stringsVar) String() string {
+	return fmt.Sprint(so.Values)
+}

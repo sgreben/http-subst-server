@@ -11,6 +11,7 @@ A mash-up of [http-file-server](https://github.com/sgreben/http-file-server) and
   - [Variables from arguments](#variables-from-arguments)
   - [Variables from the environment](#variables-from-the-environment)
   - [Variables and routes from the environment](#variables-and-routes-from-the-environment)
+  - [Variables from files](#variables-from-files)
 - [Get it](#get-it)
   - [Using `go get`](#using-go-get)
   - [Pre-built binary](#pre-built-binary)
@@ -78,6 +79,48 @@ $ http-subst-server
 2018/12/16 09:49:09 serving "./example" on "/"
 2018/12/16 09:49:09 serving "/tmp" on "/abc/"
 2018/12/16 09:49:09 http-subst-server listening on ":8080"
+```
+
+```sh
+$ curl localhost:8080
+hello world
+```
+
+### Variables from files
+
+
+```sh
+$ cat example/index.html
+$GREETING $SUBJECT
+```
+
+```sh
+$ http-subst-server -f variables.env /=example
+2018/12/16 09:49:09 serving "./example" on "/"
+2018/12/16 09:49:09 http-subst-server listening on ":8080"
+```
+
+```sh
+$ curl localhost:8080
+$GREETING $SUBJECT
+```
+
+```sh
+$ echo GREETING=hello > variables.env
+$ cat variables.env
+GREETING=hello
+```
+
+```sh
+$ curl localhost:8080
+hello $SUBJECT
+```
+
+```sh
+$ echo SUBJECT=world >> variables.env
+$ cat variables.env
+GREETING=hello
+SUBJECT=world
 ```
 
 ```sh

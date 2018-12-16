@@ -13,9 +13,9 @@ import (
 var indexBaseName = "index" + templateFileNameSuffix
 
 type fileHandler struct {
-	route string
-	path  string
-	subst func(string) (string, error)
+	route  string
+	path   string
+	render func(string) (string, error)
 }
 
 func (f *fileHandler) serveStatus(w http.ResponseWriter, r *http.Request, status int) {
@@ -40,7 +40,7 @@ func (f *fileHandler) serveTemplate(w http.ResponseWriter, r *http.Request, path
 		f.serveStatus(w, r, http.StatusInternalServerError)
 		return
 	}
-	rendered, err := expand(string(template), escape, f.subst)
+	rendered, err := f.render(string(template))
 	if err != nil {
 		log.Printf("render %q: %v", path, err)
 		f.serveStatus(w, r, http.StatusInternalServerError)

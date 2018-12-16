@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -33,7 +34,8 @@ var (
 	portFlag               = int(portFlag64)
 	quietFlag              bool
 	routesFlag             routes
-	variablesFlag          variables
+	substVariables         variables
+	variableFilesFlag      stringsVar
 	undefinedWarn          = true
 	escape                 string
 	undefinedKey           = enumVar{
@@ -62,14 +64,16 @@ func init() {
 	flag.StringVar(&substEnvVarNamePrefix, "var-prefix", substEnvVarNamePrefix, "use environment variables with this prefix in templates")
 	flag.StringVar(&routeEnvVarNamePrefix, "route-prefix", routeEnvVarNamePrefix, "use values of environment variables with this prefix as routes")
 	flag.StringVar(&templateFileNameSuffix, "template-suffix", templateFileNameSuffix, "replace $variables in files with this suffix")
-	flag.Var(&variablesFlag, "variable", variablesFlag.help())
-	flag.Var(&variablesFlag, "v", "(alias for -variable)")
+	flag.Var(&substVariables, "variable", substVariables.help())
+	flag.Var(&substVariables, "v", "(alias for -variable)")
+	flag.Var(&variableFilesFlag, "variable-file", "a file consisting of lines with one variable definition NAME=VALUE per line")
+	flag.Var(&variableFilesFlag, "f", "(alias for -variable-file)")
 	flag.Var(&undefinedKey, "undefined", "handling of undefined $variables, one of [ignore empty error] (default ignore)")
 	flag.StringVar(&escape, "escape", "\\", "set the escape string - a '$' preceded by this string is not treated as a variable")
 	for _, e := range os.Environ() {
 		if strings.HasPrefix(e, substEnvVarNamePrefix) {
 			kv := strings.TrimPrefix(e, substEnvVarNamePrefix)
-			if err := variablesFlag.Set(kv); err != nil {
+			if err := substVariables.Set(kv); err != nil {
 				log.Printf("parse %q: %v", kv, err)
 			}
 		}
@@ -106,7 +110,7 @@ func main() {
 }
 
 func subst(k string) (out string, err error) {
-	if v, ok := variablesFlag.Values[k]; ok {
+	if v, ok := substVariables.Values[k]; ok {
 		return v, nil
 	}
 	switch undefinedKey.Value {
@@ -125,6 +129,33 @@ func subst(k string) (out string, err error) {
 	return out, err
 }
 
+func loadVariableFile(path string) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if err := substVariables.Set(line); err != nil {
+			return fmt.Errorf("parse %q in %q: %v", line, path, err)
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return fmt.Errorf("scan %q: %v", path, err)
+	}
+	return nil
+}
+
+func render(template string) (string, error) {
+	for _, path := range variableFilesFlag.Values {
+		if err := loadVariableFile(path); err != nil {
+			log.Printf("error: %v", err)
+		}
+	}
+	return expand(string(template), escape, subst)
+}
+
 func server(addr string, routes routes) error {
 	if len(routes.Values) == 0 {
 		return fmt.Errorf("no routes defined")
@@ -135,9 +166,9 @@ func server(addr string, routes routes) error {
 
 	for _, route := range routes.Values {
 		handlers[route.Route] = &fileHandler{
-			route: route.Route,
-			path:  route.Path,
-			subst: subst,
+			route:  route.Route,
+			path:   route.Path,
+			render: render,
 		}
 		paths[route.Route] = route.Path
 	}
