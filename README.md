@@ -88,7 +88,7 @@ hello world
 
 ### Variables from files
 
-You may specify files containing variable definitions `NAME=VALUE` (one per line) using `-variable-file`/`-f`.
+You may specify files containing variable definitions `NAME[=VALUE]` (same syntax as `-variable`/`-v`, one per line) using `-variable-file`/`-f`.
 Changes to the definitions in these files will be picked up without having to restart the server.
 
 ```sh
@@ -144,14 +144,14 @@ go get -u github.com/sgreben/http-subst-server
 
 ```sh
 # Linux
-curl -L https://github.com/sgreben/http-subst-server/releases/download/1.2.1/http-subst-server_1.2.1_linux_x86_64.tar.gz | tar xz
+curl -L https://github.com/sgreben/http-subst-server/releases/download/1.2.2/http-subst-server_1.2.2_linux_x86_64.tar.gz | tar xz
 
 # OS X
-curl -L https://github.com/sgreben/http-subst-server/releases/download/1.2.1/http-subst-server_1.2.1_osx_x86_64.tar.gz | tar xz
+curl -L https://github.com/sgreben/http-subst-server/releases/download/1.2.2/http-subst-server_1.2.2_osx_x86_64.tar.gz | tar xz
 
 # Windows
-curl -LO https://github.com/sgreben/http-subst-server/releases/download/1.2.1/http-subst-server_1.2.1_windows_x86_64.zip
-unzip http-subst-server_1.2.1_windows_x86_64.zip
+curl -LO https://github.com/sgreben/http-subst-server/releases/download/1.2.2/http-subst-server_1.2.2_windows_x86_64.zip
+unzip http-subst-server_1.2.2_windows_x86_64.zip
 ```
 
 ## Usage
@@ -186,7 +186,7 @@ Usage of http-subst-server:
   -template-suffix string
     	replace $variables in files with this suffix (default ".html")
   -undefined value
-    	handling of undefined $variables, one of [ignore empty error] (default ignore)
+    	handling of undefined $variables, one of [ignore empty error] (default ignore) (default ignore)
   -v value
     	(alias for -variable)
   -var-prefix string

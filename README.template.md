@@ -88,7 +88,7 @@ hello world
 
 ### Variables from files
 
-You may specify files containing variable definitions `NAME=VALUE` (one per line) using `-variable-file`/`-f`.
+You may specify files containing variable definitions `NAME[=VALUE]` (same syntax as `-variable`/`-v`, one per line) using `-variable-file`/`-f`.
 Changes to the definitions in these files will be picked up without having to restart the server.
 
 ```sh

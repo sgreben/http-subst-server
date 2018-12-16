@@ -44,6 +44,7 @@ var (
 			undefinedValueIgnore,
 			undefinedValueError,
 		},
+		Value: undefinedValueIgnore,
 	}
 )
 
@@ -86,6 +87,7 @@ func init() {
 		}
 	}
 	flag.Parse()
+
 	if quietFlag {
 		log.SetOutput(ioutil.Discard)
 	}
@@ -132,10 +134,10 @@ func subst(k string) (out string, err error) {
 	switch undefinedKey.Value {
 	case undefinedValueEmpty:
 		out = ""
-	case undefinedValueIgnore:
-		out = "$" + k
 	case undefinedValueError:
 		err = fmt.Errorf(`undefined key: $%s`, k)
+	case undefinedValueIgnore:
+		fallthrough
 	default:
 		out = "$" + k
 	}
