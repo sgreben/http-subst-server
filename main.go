@@ -154,11 +154,11 @@ func loadVariableFile(path string) error {
 	for scanner.Scan() {
 		line := scanner.Text()
 		if err := substVariables.Set(line); err != nil {
-			return fmt.Errorf("parse %q in %q: %v", line, path, err)
+			log.Printf("parse %q in %q: %v", line, path, err)
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("scan %q: %v", path, err)
+		log.Printf("scan %q: %v", path, err)
 	}
 	return nil
 }
