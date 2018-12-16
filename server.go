@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 var indexBaseName = "index" + templateFileNameSuffix
@@ -46,7 +46,7 @@ func (f *fileHandler) serveTemplate(w http.ResponseWriter, r *http.Request, path
 		f.serveStatus(w, r, http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprint(w, rendered)
+	http.ServeContent(w, r, filepath.Base(path), time.Time{}, strings.NewReader(rendered))
 }
 
 // ServeHTTP is http.Handler.ServeHTTP
@@ -69,11 +69,9 @@ func (f *fileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		f.serveStatus(w, r, http.StatusInternalServerError)
 	case info.IsDir():
 		f.serveDir(w, r, path)
+	case strings.HasSuffix(path, templateFileNameSuffix):
+		f.serveTemplate(w, r, path)
 	default:
-		if strings.HasSuffix(path, templateFileNameSuffix) {
-			f.serveTemplate(w, r, path)
-			return
-		}
 		http.ServeFile(w, r, path)
 	}
 }

@@ -144,14 +144,14 @@ go get -u github.com/sgreben/http-subst-server
 
 ```sh
 # Linux
-curl -L https://github.com/sgreben/http-subst-server/releases/download/1.2.2/http-subst-server_1.2.2_linux_x86_64.tar.gz | tar xz
+curl -L https://github.com/sgreben/http-subst-server/releases/download/1.2.3/http-subst-server_1.2.3_linux_x86_64.tar.gz | tar xz
 
 # OS X
-curl -L https://github.com/sgreben/http-subst-server/releases/download/1.2.2/http-subst-server_1.2.2_osx_x86_64.tar.gz | tar xz
+curl -L https://github.com/sgreben/http-subst-server/releases/download/1.2.3/http-subst-server_1.2.3_osx_x86_64.tar.gz | tar xz
 
 # Windows
-curl -LO https://github.com/sgreben/http-subst-server/releases/download/1.2.2/http-subst-server_1.2.2_windows_x86_64.zip
-unzip http-subst-server_1.2.2_windows_x86_64.zip
+curl -LO https://github.com/sgreben/http-subst-server/releases/download/1.2.3/http-subst-server_1.2.3_windows_x86_64.zip
+unzip http-subst-server_1.2.3_windows_x86_64.zip
 ```
 
 ## Usage
