@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 )
 
 type variables struct {
 	Separator string
 
+	Mu     sync.RWMutex
 	Values map[string]string
 	Texts  []string
 }
@@ -23,6 +25,8 @@ func (fv *variables) help() string {
 
 // Set is flag.Value.Set
 func (fv *variables) Set(v string) error {
+	fv.Mu.Lock()
+	defer fv.Mu.Unlock()
 	separator := "="
 	if fv.Separator != "" {
 		separator = fv.Separator
@@ -45,5 +49,7 @@ func (fv *variables) Set(v string) error {
 }
 
 func (fv *variables) String() string {
+	fv.Mu.RLock()
+	defer fv.Mu.RUnlock()
 	return strings.Join(fv.Texts, ", ")
 }

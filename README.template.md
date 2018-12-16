@@ -12,6 +12,7 @@ A mash-up of [http-file-server](https://github.com/sgreben/http-file-server) and
   - [Variables from the environment](#variables-from-the-environment)
   - [Variables and routes from the environment](#variables-and-routes-from-the-environment)
   - [Variables from files](#variables-from-files)
+  - [Variables from standard input](#variables-from-standard-input)
 - [Get it](#get-it)
   - [Using `go get`](#using-go-get)
   - [Pre-built binary](#pre-built-binary)
@@ -128,6 +129,29 @@ SUBJECT=world
 ```sh
 $ curl localhost:8080
 hello world
+```
+
+### Variables from standard input
+
+If the `-variables-from-stdin`/`-i` flag is given, variable definitions `NAME[=VALUE]` (same syntax as `-variable`/`-v`, one per line) are continuously streamed from standard input (until it is closed). New definitions are available to templates immediately.
+
+```sh
+$ cat example/index.html
+$GREETING $SUBJECT
+```
+
+```sh
+$ http-subst-server -i /=example
+2018/12/16 09:49:09 serving "./example" on "/"
+2018/12/16 09:49:09 http-subst-server listening on ":8080"
+018/12/16 21:28:17 reading variable definitions NAME[=VALUE] from stdin
+GREETING=foo
+SUBJECT=bar
+```
+
+```sh
+$ curl localhost:8080
+foo bar
 ```
 
 ## Get it

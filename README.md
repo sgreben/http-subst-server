@@ -12,6 +12,7 @@ A mash-up of [http-file-server](https://github.com/sgreben/http-file-server) and
   - [Variables from the environment](#variables-from-the-environment)
   - [Variables and routes from the environment](#variables-and-routes-from-the-environment)
   - [Variables from files](#variables-from-files)
+  - [Variables from standard input](#variables-from-standard-input)
 - [Get it](#get-it)
   - [Using `go get`](#using-go-get)
   - [Pre-built binary](#pre-built-binary)
@@ -130,6 +131,29 @@ $ curl localhost:8080
 hello world
 ```
 
+### Variables from standard input
+
+If the `-variables-from-stdin`/`-i` flag is given, variable definitions `NAME[=VALUE]` (same syntax as `-variable`/`-v`, one per line) are continuously streamed from standard input (until it is closed). New definitions are available to templates immediately.
+
+```sh
+$ cat example/index.html
+$GREETING $SUBJECT
+```
+
+```sh
+$ http-subst-server -i /=example
+2018/12/16 09:49:09 serving "./example" on "/"
+2018/12/16 09:49:09 http-subst-server listening on ":8080"
+018/12/16 21:28:17 reading variable definitions NAME[=VALUE] from stdin
+GREETING=foo
+SUBJECT=bar
+```
+
+```sh
+$ curl localhost:8080
+foo bar
+```
+
 ## Get it
 
 ### Using `go get`
@@ -144,14 +168,14 @@ go get -u github.com/sgreben/http-subst-server
 
 ```sh
 # Linux
-curl -L https://github.com/sgreben/http-subst-server/releases/download/1.2.3/http-subst-server_1.2.3_linux_x86_64.tar.gz | tar xz
+curl -L https://github.com/sgreben/http-subst-server/releases/download/1.2.4/http-subst-server_1.2.4_linux_x86_64.tar.gz | tar xz
 
 # OS X
-curl -L https://github.com/sgreben/http-subst-server/releases/download/1.2.3/http-subst-server_1.2.3_osx_x86_64.tar.gz | tar xz
+curl -L https://github.com/sgreben/http-subst-server/releases/download/1.2.4/http-subst-server_1.2.4_osx_x86_64.tar.gz | tar xz
 
 # Windows
-curl -LO https://github.com/sgreben/http-subst-server/releases/download/1.2.3/http-subst-server_1.2.3_windows_x86_64.zip
-unzip http-subst-server_1.2.3_windows_x86_64.zip
+curl -LO https://github.com/sgreben/http-subst-server/releases/download/1.2.4/http-subst-server_1.2.4_windows_x86_64.zip
+unzip http-subst-server_1.2.4_windows_x86_64.zip
 ```
 
 ## Usage
@@ -170,6 +194,7 @@ Usage of http-subst-server:
     	set the escape string - a '$' preceded by this string is not treated as a variable (default "\\")
   -f value
     	(alias for -variable-file)
+  -i	(alias for -variables-from-stdin)
   -p int
     	(alias for -port)
   -port int
@@ -194,5 +219,9 @@ Usage of http-subst-server:
   -variable value
     	a variable definition NAME[=VALUE] (if the value is omitted, the value of the environment variable with the given name is used)
   -variable-file value
-    	a file consisting of lines with one variable definition NAME=VALUE per line
+    	a file consisting of lines with one variable definition NAME[=VALUE] per line
+  -variable-file-reload duration
+    	reload interval for variable files (default 1s)
+  -variables-from-stdin
+    	read lines with variable definitions NAME[=VALUE] from stdin
 ```

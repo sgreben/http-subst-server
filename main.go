@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -36,6 +37,8 @@ var (
 	routesFlag             routes
 	substVariables         variables
 	variableFilesFlag      stringsVar
+	variablesFromStdinFlag bool
+	reloadInterval         time.Duration
 	undefinedWarn          = true
 	escape                 string
 	undefinedKey           = enumVar{
@@ -67,8 +70,11 @@ func init() {
 	flag.StringVar(&templateFileNameSuffix, "template-suffix", templateFileNameSuffix, "replace $variables in files with this suffix")
 	flag.Var(&substVariables, "variable", substVariables.help())
 	flag.Var(&substVariables, "v", "(alias for -variable)")
-	flag.Var(&variableFilesFlag, "variable-file", "a file consisting of lines with one variable definition NAME=VALUE per line")
+	flag.Var(&variableFilesFlag, "variable-file", "a file consisting of lines with one variable definition NAME[=VALUE] per line")
 	flag.Var(&variableFilesFlag, "f", "(alias for -variable-file)")
+	flag.BoolVar(&variablesFromStdinFlag, "variables-from-stdin", false, "read lines with variable definitions NAME[=VALUE] from stdin")
+	flag.BoolVar(&variablesFromStdinFlag, "i", false, "(alias for -variables-from-stdin)")
+	flag.DurationVar(&reloadInterval, "variable-file-reload", time.Second, "reload interval for variable files")
 	flag.Var(&undefinedKey, "undefined", "handling of undefined $variables, one of [ignore empty error] (default ignore)")
 	flag.StringVar(&escape, "escape", "\\", "set the escape string - a '$' preceded by this string is not treated as a variable")
 	for _, e := range os.Environ() {
@@ -121,10 +127,65 @@ func main() {
 	if err != nil {
 		log.Fatalf("address/port: %v", err)
 	}
+	go loadVariables(reloadInterval)
 	err = server(addr, routesFlag)
 	if err != nil {
 		log.Fatalf("start server: %v", err)
 	}
+}
+
+func loadVariables(interval time.Duration) {
+	tick := time.Tick(interval)
+	stdinCh := make(chan string)
+	if variablesFromStdinFlag {
+		log.Printf("reading variable definitions NAME[=VALUE] from stdin")
+		go stdinLines(stdinCh)
+	}
+	for {
+		select {
+		case line := <-stdinCh:
+			substVariables.Set(line)
+		case <-tick:
+			loadVariableFiles()
+		}
+	}
+}
+
+func stdinLines(out chan string) {
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		out <- scanner.Text()
+	}
+	if err := scanner.Err(); err != nil {
+		log.Printf("scan stdin: %v", err)
+	}
+	log.Println("stdin closed")
+}
+
+func loadVariableFiles() {
+	for _, path := range variableFilesFlag.Values {
+		if err := loadVariableFile(path); err != nil {
+			log.Printf("error: %v", err)
+		}
+	}
+}
+
+func loadVariableFile(path string) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if err := substVariables.Set(line); err != nil {
+			log.Printf("parse %q in %q: %v", line, path, err)
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		log.Printf("scan %q: %v", path, err)
+	}
+	return nil
 }
 
 func subst(k string) (out string, err error) {
@@ -147,30 +208,9 @@ func subst(k string) (out string, err error) {
 	return out, err
 }
 
-func loadVariableFile(path string) error {
-	f, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if err := substVariables.Set(line); err != nil {
-			log.Printf("parse %q in %q: %v", line, path, err)
-		}
-	}
-	if err := scanner.Err(); err != nil {
-		log.Printf("scan %q: %v", path, err)
-	}
-	return nil
-}
-
 func render(template string) (string, error) {
-	for _, path := range variableFilesFlag.Values {
-		if err := loadVariableFile(path); err != nil {
-			log.Printf("error: %v", err)
-		}
-	}
+	substVariables.Mu.RLock()
+	defer substVariables.Mu.RUnlock()
 	return expand(string(template), escape, subst)
 }
 
