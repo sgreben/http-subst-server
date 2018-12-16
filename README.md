@@ -7,20 +7,53 @@ A mash-up of [http-file-server](https://github.com/sgreben/http-file-server) and
 ## Contents
 
 - [Contents](#contents)
+- [Get it](#get-it)
+  - [Using `go get`](#using-go-get)
+  - [Pre-built binary](#pre-built-binary)
 - [Examples](#examples)
-  - [Variables from arguments](#variables-from-arguments)
+  - [Variables from command-line options](#variables-from-command-line-options)
   - [Variables from the environment](#variables-from-the-environment)
   - [Variables and routes from the environment](#variables-and-routes-from-the-environment)
   - [Variables from files](#variables-from-files)
   - [Variables from standard input](#variables-from-standard-input)
-- [Get it](#get-it)
-  - [Using `go get`](#using-go-get)
-  - [Pre-built binary](#pre-built-binary)
 - [Usage](#usage)
+
+
+## Get it
+
+### Using `go get`
+
+```sh
+go get -u github.com/sgreben/http-subst-server
+```
+
+### Pre-built binary
+
+[Download a binary](https://github.com/sgreben/http-subst-server/releases/latest) from the releases page or from the shell:
+
+```sh
+# Linux
+curl -L https://github.com/sgreben/http-subst-server/releases/download/1.2.4/http-subst-server_1.2.4_linux_x86_64.tar.gz | tar xz
+
+# OS X
+curl -L https://github.com/sgreben/http-subst-server/releases/download/1.2.4/http-subst-server_1.2.4_osx_x86_64.tar.gz | tar xz
+
+# Windows
+curl -LO https://github.com/sgreben/http-subst-server/releases/download/1.2.4/http-subst-server_1.2.4_windows_x86_64.zip
+unzip http-subst-server_1.2.4_windows_x86_64.zip
+```
 
 ## Examples
 
-### Variables from arguments
+The CLI has the following general syntax:
+
+```text
+http-subst-server [OPTIONS] [[ROUTE=]PATH...]
+```
+
+Template variables can be set via [command-line options](#variables-from-command-line-options), [environment variables](#variables-from-environment), [files](#variables-from-files), and [standard input](#variables-from-standard-input).
+
+### Variables from command-line options
 
 ```sh
 $ cat example/index.html
@@ -152,30 +185,6 @@ SUBJECT=bar
 ```sh
 $ curl localhost:8080
 foo bar
-```
-
-## Get it
-
-### Using `go get`
-
-```sh
-go get -u github.com/sgreben/http-subst-server
-```
-
-### Pre-built binary
-
-[Download a binary](https://github.com/sgreben/http-subst-server/releases/latest) from the releases page or from the shell:
-
-```sh
-# Linux
-curl -L https://github.com/sgreben/http-subst-server/releases/download/1.2.4/http-subst-server_1.2.4_linux_x86_64.tar.gz | tar xz
-
-# OS X
-curl -L https://github.com/sgreben/http-subst-server/releases/download/1.2.4/http-subst-server_1.2.4_osx_x86_64.tar.gz | tar xz
-
-# Windows
-curl -LO https://github.com/sgreben/http-subst-server/releases/download/1.2.4/http-subst-server_1.2.4_windows_x86_64.zip
-unzip http-subst-server_1.2.4_windows_x86_64.zip
 ```
 
 ## Usage
