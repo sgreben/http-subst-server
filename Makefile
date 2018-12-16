@@ -1,4 +1,4 @@
-VERSION = 1.2.4
+VERSION = 1.2.5
 
 APP      := http-subst-server
 PACKAGES := $(shell go list -f {{.Dir}} ./...)

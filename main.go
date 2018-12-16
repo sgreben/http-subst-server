@@ -144,7 +144,9 @@ func loadVariables(interval time.Duration) {
 	for {
 		select {
 		case line := <-stdinCh:
-			substVariables.Set(line)
+			if err := substVariables.Set(line); err != nil {
+				log.Printf("parse %q from stdin: %v", line, err)
+			}
 		case <-tick:
 			loadVariableFiles()
 		}
