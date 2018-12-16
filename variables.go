@@ -18,7 +18,7 @@ func (fv *variables) help() string {
 	if fv.Separator != "" {
 		separator = fv.Separator
 	}
-	return fmt.Sprintf("a variable definition NAME[%sVALUE]", separator)
+	return fmt.Sprintf("a variable definition NAME[%sVALUE] (if the value is omitted, the value of the environment variable with the given name is used)", separator)
 }
 
 // Set is flag.Value.Set

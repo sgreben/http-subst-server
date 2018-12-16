@@ -99,14 +99,14 @@ go get -u github.com/sgreben/http-subst-server
 
 ```sh
 # Linux
-curl -L https://github.com/sgreben/http-subst-server/releases/download/1.0.0/http-subst-server_1.0.0_linux_x86_64.tar.gz | tar xz
+curl -L https://github.com/sgreben/http-subst-server/releases/download/1.0.1/http-subst-server_1.0.1_linux_x86_64.tar.gz | tar xz
 
 # OS X
-curl -L https://github.com/sgreben/http-subst-server/releases/download/1.0.0/http-subst-server_1.0.0_osx_x86_64.tar.gz | tar xz
+curl -L https://github.com/sgreben/http-subst-server/releases/download/1.0.1/http-subst-server_1.0.1_osx_x86_64.tar.gz | tar xz
 
 # Windows
-curl -LO https://github.com/sgreben/http-subst-server/releases/download/1.0.0/http-subst-server_1.0.0_windows_x86_64.zip
-unzip http-subst-server_1.0.0_windows_x86_64.zip
+curl -LO https://github.com/sgreben/http-subst-server/releases/download/1.0.1/http-subst-server_1.0.1_windows_x86_64.zip
+unzip http-subst-server_1.0.1_windows_x86_64.zip
 ```
 
 ## Usage
@@ -145,5 +145,5 @@ Usage of http-subst-server:
   -var-prefix string
     	use environment variables with this prefix in templates (default "SUBST_VAR_")
   -variable value
-    	a variable definition NAME[=VALUE]
+    	a variable definition NAME[=VALUE] (if the value is omitted, the value of the environment variable with the given name is used)
 ```
