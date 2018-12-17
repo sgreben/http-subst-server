@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -37,6 +38,7 @@ var (
 	routesFlag             routes
 	substVariables         variables
 	variableFilesFlag      stringsVar
+	outputPath             string
 	variablesFromStdinFlag bool
 	reloadInterval         time.Duration
 	undefinedWarn          = true
@@ -72,6 +74,8 @@ func init() {
 	flag.Var(&substVariables, "v", "(alias for -variable)")
 	flag.Var(&variableFilesFlag, "variable-file", "a file consisting of lines with one variable definition NAME[=VALUE] per line")
 	flag.Var(&variableFilesFlag, "f", "(alias for -variable-file)")
+	flag.StringVar(&outputPath, "output", "", "write the variable mapping to this file whenever it changes")
+	flag.StringVar(&outputPath, "o", "", "(alias for -output)")
 	flag.BoolVar(&variablesFromStdinFlag, "variables-from-stdin", false, "read lines with variable definitions NAME[=VALUE] from stdin")
 	flag.BoolVar(&variablesFromStdinFlag, "i", false, "(alias for -variables-from-stdin)")
 	flag.DurationVar(&reloadInterval, "variable-file-reload", time.Second, "reload interval for variable files")
@@ -134,6 +138,32 @@ func main() {
 	}
 }
 
+func saveVariables() {
+	substVariables.Mu.RLock()
+	defer substVariables.Mu.RUnlock()
+	if outputPath != "" {
+		f, err := ioutil.TempFile("", "")
+		if err != nil {
+			log.Printf("create temporary file: %v", err)
+			return
+		}
+		var lines []string
+		for k, v := range substVariables.Values {
+			lines = append(lines, fmt.Sprintf("%s=%s", k, v))
+		}
+		sort.Strings(lines)
+		for _, line := range lines {
+			fmt.Fprintln(f, line)
+		}
+		if err := f.Close(); err != nil {
+			log.Printf("close temporary file: %v", err)
+		}
+		if err := os.Rename(f.Name(), outputPath); err != nil {
+			log.Printf("replace output file: %v", err)
+		}
+	}
+}
+
 func loadVariables(interval time.Duration) {
 	tick := time.Tick(interval)
 	stdinCh := make(chan string)
@@ -147,8 +177,10 @@ func loadVariables(interval time.Duration) {
 			if err := substVariables.Set(line); err != nil {
 				log.Printf("parse %q from stdin: %v", line, err)
 			}
+			saveVariables()
 		case <-tick:
 			loadVariableFiles()
+			saveVariables()
 		}
 	}
 }
