@@ -95,6 +95,16 @@ $ curl localhost:8080
 hello world
 ```
 
+Environment variables can also be injected by using the shorthand `-v NAME` (short for `-variable NAME`) instead of `-v NAME=VALUE`. When `=VALUE` is left off, `http-subst-server` sets `NAME` to the value of `$NAME` in the current environment:
+
+```
+$ export GREETING=hello
+$ export SUBJECT=world
+$ http-subst-server -v GREETING -v SUBJECT /=example
+2018/12/16 09:49:09 serving "./example" on "/"
+2018/12/16 09:49:09 http-subst-server listening on ":8080"
+```
+
 ### Variables and routes from the environment
 
 The values of environment variables with names prefixed `SUBST_ROUTE_` (or a custom prefix set via `-route-prefix`) are used as routes. Apart from the name prefix, only the value of the environment variable is relevant.
