@@ -112,7 +112,7 @@ func init() {
 			log.Fatalf("create temporary directory: %v", err)
 		}
 		tempDirIndexPath := filepath.Join(tempDir, indexBaseName)
-		if err := ioutil.WriteFile(tempDirIndexPath, nil, 0500); err != nil {
+		if err := ioutil.WriteFile(tempDirIndexPath, nil, 0600); err != nil {
 			log.Fatalf("write empty index file %q: %v", tempDirIndexPath, err)
 		}
 		routesFlag.Set(fmt.Sprintf("/=%s", tempDir))
