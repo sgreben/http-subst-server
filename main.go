@@ -110,20 +110,9 @@ func init() {
 	}
 
 	if len(routesFlag.Values) == 0 {
-		log.Println("no routes defined, creating temporary directory to serve from")
-		tempDir, err := ioutil.TempDir("", "")
-		if err != nil {
-			log.Fatalf("create temporary directory: %v", err)
-		}
-		tempDirIndexPath := filepath.Join(tempDir, indexBaseName)
-		if err := ioutil.WriteFile(tempDirIndexPath, nil, 0600); err != nil {
-			log.Fatalf("write empty index file %q: %v", tempDirIndexPath, err)
-		}
-		routesFlag.Set(fmt.Sprintf("/=%s", tempDir))
-		log.Printf("created temporary directory %q. printing its path to stdout.", filepath.Base(tempDir))
-		fmt.Println(tempDir)
+		log.Printf("no routes defined, serving current directory at %q", rootRoute)
+		routesFlag.Set("/=.")
 	}
-
 }
 
 func main() {
